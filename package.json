@@ -62,8 +62,8 @@
   "keywords": [
     "react",
     "nes",
-    "flux",
-    "mitt"
+    "hapi",
+    "hapijs"
   ],
   "babel": {
     "presets": [
