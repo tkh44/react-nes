@@ -27,15 +27,11 @@
     "react": "^15.0.0-0"
   },
   "devDependencies": {
-    "babel-cli": "^6.22.2",
-    "babel-eslint": "^7.1.1",
-    "babel-istanbul": "^0.12.1",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-stage-0": "^6.5.0",
     "codecov": "^1.0.1",
     "expect": "^1.20.2",
     "gzip-size-cli": "^1.0.0",
     "hapi": "^16.1.0",
+    "istanbul": "^0.4.5",
     "jsdom": "^9.8.3",
     "mitt": "^1.0.0",
     "mocha": "^3.1.2",
@@ -66,12 +62,6 @@
     "hapi",
     "hapijs"
   ],
-  "babel": {
-    "presets": [
-      "es2015",
-      "stage-0"
-    ]
-  },
   "standard": {
     "ignore": [
       "/dist/"
