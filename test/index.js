@@ -557,7 +557,7 @@ describe('react-nes', () => {
             componentDidMount () {
               setTimeout(() => {
                 this.setState({ path: '/1' })
-              }, 10)
+              }, 50)
             }
 
             render () {
