@@ -23,15 +23,18 @@ const clientShape = PropTypes.shape({
 /**
  * https://github.com/hapijs/nes/blob/master/API.md#new-clienturl-options
  */
-export class ClientProvider extends Component {
+class ClientProvider extends Component {
+
   constructor (props, context) {
     super(props, context)
 
     this.client = props.client
-    this.client.onError = props.onError
-    this.client.onConnect = props.onConnect
-    this.client.onDisconnect = props.onDisconnect
-    this.client.onUpdate = props.onUpdate
+    const clientCallbacks = ['onError', 'onConnect', 'onDisconnect', 'onUpdate']
+    clientCallbacks.forEach((cbName) => {
+      if (props[cbName]) {
+        this.client[cbName] = props[cbName]
+      }
+    })
   }
 
   getChildContext () {
@@ -48,19 +51,21 @@ ClientProvider.DisplayName = 'NesClientProvider'
 ClientProvider.propTypes = {
   client: clientShape.isRequired,
   onError: PropTypes.func,
-  onConnect: PropTypes.func.isRequired,
-  onDisconnect: PropTypes.func.isRequired,
+  onConnect: PropTypes.func,
+  onDisconnect: PropTypes.func,
   onUpdate: PropTypes.func,
   children: PropTypes.element.isRequired
 }
 
 ClientProvider.childContextTypes = { client: clientShape.isRequired }
 
+exports.ClientProvider = ClientProvider
+
 /**
  * export default withNesClient(MyComponent)
  * MyComponent will now have `client` as prop
  */
-export function withNesClient (WrappedComponent) {
+function withNesClient (WrappedComponent) {
   class WithNesClient extends Component {
     render () {
       return h(
@@ -75,11 +80,13 @@ export function withNesClient (WrappedComponent) {
   return WithNesClient
 }
 
+exports.withNesClient = withNesClient
+
 /**
  * ConnectNes
  * https://github.com/hapijs/nes/blob/master/API.md#clientconnectoptions-callback
  */
-export class Connect extends Component {
+class Connect extends Component {
   constructor (props, context) {
     super(props, context)
     this.state = {
@@ -88,8 +95,8 @@ export class Connect extends Component {
       error: undefined
     }
     this.handleConnectionResponse = this.handleConnectionResponse.bind(this)
-    this.handleDisconnect = this.handleDisconnect.bind(this)
     this.connect = this.connect.bind(this)
+    // this.handleDisconnect = this.handleDisconnect.bind(this)
   }
 
   componentDidMount () {
@@ -107,7 +114,7 @@ export class Connect extends Component {
       error: this.state.error,
       overrideReconnectionAuth: this.context.client.overrideReconnectionAuth,
       connect: this.connect,
-      disconnect: this.context.client.disconnect
+      disconnect: this.context.client.disconnect.bind(this.context.client)
     })
   }
 
@@ -119,13 +126,14 @@ export class Connect extends Component {
     })
   }
 
-  handleDisconnect () {
-    this.setState({ connected: false }, () => {
-      if (this.props.onDisconnect) {
-        this.props.onDisconnect()
-      }
-    })
-  }
+  // This has to be wired up through the ClientProvider via context somehow
+  // handleDisconnect () {
+  //   this.setState({ connected: false }, () => {
+  //     if (this.props.onDisconnect) {
+  //       this.props.onDisconnect()
+  //     }
+  //   })
+  // }
 
   connect () {
     const { auth, delay, maxDelay, retries, timeout } = this.props
@@ -145,14 +153,16 @@ Connect.propTypes = {
   maxDelay: PropTypes.number,
   retries: PropTypes.number,
   timeout: PropTypes.number,
-  onConnect: PropTypes.func,
-  onDisconnect: PropTypes.func
+  onConnect: PropTypes.func
+  // onDisconnect: PropTypes.func
 }
+
+exports.Connect = Connect
 
 /**
  * https://github.com/hapijs/nes/blob/master/API.md#clientrequestoptions-callback
  */
-export class Request extends Component {
+class Request extends Component {
   constructor (props, context) {
     super(props, context)
     this.state = {
@@ -198,9 +208,7 @@ export class Request extends Component {
     this.setState(
       { fetching: false, payload, error: err, statusCode, headers },
       () => {
-        if (this.props.onResponse) {
-          this.props.onResponse(err)
-        }
+        this.props.onResponse(err, payload, statusCode, headers)
       }
     )
   }
@@ -215,22 +223,28 @@ export class Request extends Component {
 
 Request.contextTypes = { client: clientShape }
 
-Request.defaultProps = { method: 'GET', lazy: false }
+Request.defaultProps = {
+  method: 'GET',
+  lazy: false,
+  onResponse: () => {}
+}
 
 Request.propTypes = {
-  lazy: PropTypes.bool.isRequired,
-  path: PropTypes.string.isRequired,
-  method: PropTypes.string.isRequired,
+  lazy: PropTypes.bool,
+  path: PropTypes.string,
+  method: PropTypes.string,
   headers: PropTypes.object,
   payload: PropTypes.object,
   onResponse: PropTypes.func,
   onSubscribe: PropTypes.func
 }
 
+exports.Request = Request
+
 /**
  * https://github.com/hapijs/nes/blob/master/API.md#clientsubscribepath-handler-callback
  */
-export class Subscribe extends Component {
+class Subscribe extends Component {
   constructor (props, context) {
     super(props, context)
     this.state = { subscribing: false, subscribed: false, error: undefined }
@@ -251,12 +265,18 @@ export class Subscribe extends Component {
     if (
       !this.props.lazy && diffProps.some(k => this.props[k] !== prevProps[k])
     ) {
-      this.subscribe()
+      const { client } = this.context
+      const { path, handler } = this.props
+      client.unsubscribe(path, handler, () => {
+        this.subscribe()
+      })
     }
   }
 
   componentWillUnmount () {
-    this.unsubscribe()
+    const { client } = this.context
+    const { path, handler } = this.props
+    client.unsubscribe(path, handler, () => {})
   }
 
   render () {
@@ -276,9 +296,7 @@ export class Subscribe extends Component {
 
   handleSubscribe (err) {
     this.setState({ subscribing: false, subscribed: !err, error: err }, () => {
-      if (this.props.onSubscribe) {
-        this.props.onSubscribe(err)
-      }
+      this.props.onSubscribe(err)
     })
   }
 
@@ -296,7 +314,7 @@ export class Subscribe extends Component {
     const { path, handler } = this.props
     client.unsubscribe(path, handler, err => {
       this.setState({ subscribed: !err, error: err }, () => {
-        if (this.props.onUnsubscribe) this.props.onUnsubscribe(err)
+        this.props.onUnsubscribe(err)
       })
     })
   }
@@ -304,8 +322,14 @@ export class Subscribe extends Component {
 
 Subscribe.contextTypes = { client: clientShape }
 Subscribe.propTypes = {
-  path: PropTypes.string.isRequired,
-  handler: PropTypes.func.isRequired,
+  path: PropTypes.string,
+  handler: PropTypes.func,
   onSubscribe: PropTypes.func,
   onUnsubscribe: PropTypes.func
 }
+Subscribe.defaultProps = {
+  onSubscribe: () => {},
+  onUnsubscribe: () => {}
+}
+
+exports.Subscribe = Subscribe
