@@ -181,7 +181,7 @@ class Request extends Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    const diffProps = [ 'path', 'method', 'headers', 'payload' ]
+    const diffProps = [ 'path', 'method' ]
     if (
       !this.props.lazy && diffProps.some(k => this.props[k] !== prevProps[k])
     ) {
