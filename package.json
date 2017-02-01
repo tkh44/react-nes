@@ -69,10 +69,7 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "mitt": "^1.0.0",
-    "npm-run-all": "^4.0.1"
-  },
+  "dependencies": {},
   "bugs": {
     "url": "https://github.com/tkh44/react-nes/issues"
   }
