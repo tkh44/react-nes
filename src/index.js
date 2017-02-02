@@ -65,7 +65,7 @@ exports.ClientProvider = ClientProvider
  * export default withNesClient(MyComponent)
  * MyComponent will now have `client` as prop
  */
-function withNesClient (WrappedComponent) {
+exports.withNesClient = function withNesClient (WrappedComponent) {
   class WithNesClient extends Component {
     render () {
       return h(
@@ -79,8 +79,6 @@ function withNesClient (WrappedComponent) {
 
   return WithNesClient
 }
-
-exports.withNesClient = withNesClient
 
 /**
  * ConnectNes
