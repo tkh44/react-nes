@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "standard src test && node node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --require test/setup.js --report lcovonly test/index.js -- -R spec",
+    "test": "standard src test && node node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --compilers js:babel-register --require test/setup.js --report lcovonly test/index.js -- -R spec",
     "test:html": "standard src test && node node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --require test/setup.js --report html test/index.js -- -R spec",
     "build": "npm-run-all clean -p rollup:* -p minify:* -s size",
     "clean": "rimraf dist && mkdirp dist",
@@ -27,7 +27,6 @@
     "react": "^15.0.0-0"
   },
   "devDependencies": {
-    "codecov": "^1.0.1",
     "expect": "^1.20.2",
     "gzip-size-cli": "^1.0.0",
     "hapi": "^16.1.0",
