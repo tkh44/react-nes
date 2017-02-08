@@ -1,7 +1,7 @@
 {
   "name": "react-nes",
   "amdName": "ReactNes",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React components for nes",
   "main": "dist/react-nes.js",
   "umd:main": "dist/react-nes.min.js",
