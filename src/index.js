@@ -17,7 +17,7 @@ const clientShape = PropTypes.shape({
   subscribe: PropTypes.func.isRequired,
   unsubscribe: PropTypes.func.isRequired,
   subscriptions: PropTypes.func.isRequired,
-  overrideReconnectionAuth: PropTypes.func.isRequired
+  overrideReconnectionAuth: PropTypes.func
 })
 
 /**
@@ -233,8 +233,7 @@ Request.propTypes = {
   method: PropTypes.string,
   headers: PropTypes.object,
   payload: PropTypes.object,
-  onResponse: PropTypes.func,
-  onSubscribe: PropTypes.func
+  onResponse: PropTypes.func
 }
 
 exports.Request = Request

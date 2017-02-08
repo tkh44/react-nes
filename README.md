@@ -12,9 +12,33 @@ React components for [nes](https://github.com/hapijs/nes)
 npm install -S react-nes
 ```
 
-## Examples
+#API
+
+Please refer to the nes docs if you have questions about what each prop does.
+
+[nes API documentation](https://github.com/hapijs/nes/blob/master/API.md)
+
+
+## Components
 
 ### ClientProvider
+
+##### Props
+
+**client** (_nesClient_) : nes client instance
+
+**onError** (_function_) : `client.onConnect`
+
+**onConnect** (_function_) : `client.onConnect`
+
+**onDisconnect** (_function_) `client.onDisconnect`
+
+**onUpdate** (_function_) `client.onUpdate`
+
+**children** (_element_) : accepts a single child
+
+
+##### Example
 ```javascript
 const client = new Nes.Client('http://localhost')
 const App = ({ auth }) => {
@@ -35,6 +59,24 @@ const App = ({ auth }) => {
 ```
 
 ### Connect
+
+##### Props
+
+**auth** (_object|string_) : client auth
+
+**delay** (_number_)
+
+**maxDelay** (_number_)
+
+**retries** (_number_)
+
+**timeout** (_number_)
+
+**onConnect** (_function_) :  the server response callback
+
+**children** (_function_) :  child callback with signature `function({ connecting, connected, error, overrideReconnectionAuth, connect, disconnect })` 
+
+##### Example
 ```javascript
 const MyComponent = ({ auth }) => {
   return (
@@ -51,6 +93,10 @@ const MyComponent = ({ auth }) => {
 ```
 
 ### withNesClient (HoC)
+
+inject the client into a component's props
+
+##### Example
 ```javascript
 const ComponentWithClient = withNesClient(({ client }) => {
   return (
@@ -60,6 +106,24 @@ const ComponentWithClient = withNesClient(({ client }) => {
 ```
 
 ### Request
+
+##### Props
+
+**lazy** (_object|string_) : client auth
+
+**path** (_string_)
+
+**method** (_string_)
+
+**headers** (_object_)
+
+**payload** (_object_)
+
+**onResponse** (_function_) :  the callback method using the signature `function(err, payload, statusCode, headers)`
+
+**children** (_function_) :  child callback with signature `function({ fetching, payload, error, statusCode, headers, request })`
+
+##### Example
 ```javascript
 const Room = ({ id }) => {
   return (
@@ -80,6 +144,20 @@ const Room = ({ id }) => {
 ```
 
 ### Subscribe
+
+##### Props
+
+**path** (_string_)
+
+**handler** (_function_)
+
+**onSubscribe** (_function_) :  the callback function called when the subscription request was received by the server or failed to transmit
+
+**onUnsubscribe** (_function_) :  the callback function called when the unsubscribe request was received by the server or failed to transmit
+
+**children** (_function_) :  child callback with signature `function({ subscribing, subscribed, error, getSubscriptions, subscribe, unsubscribe })`
+
+##### Example
 ```javascript
 const MySubscribedComponent = ({ connected, id }) => {
   if (!connected) return (<Loader/>)
@@ -100,7 +178,10 @@ const MySubscribedComponent = ({ connected, id }) => {
 }
 ```
 
-### Put it all together...
+------------------
+
+
+## Realistic Example
 ```javascript
 // Using react-router and redux...
 class RoomWrapper extends Component {
