@@ -27,7 +27,7 @@ Please refer to the nes docs if you have questions about what each prop does.
 
 **client** (_nesClient_) : nes client instance
 
-**onError** (_function_) : `client.onConnect`
+**onError** (_function_) : `client.onError`
 
 **onConnect** (_function_) : `client.onConnect`
 
