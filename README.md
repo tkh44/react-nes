@@ -12,7 +12,7 @@ React components for [nes](https://github.com/hapijs/nes)
 npm install -S react-nes
 ```
 
-#API
+# API
 
 Please refer to the nes docs if you have questions about what each prop does.
 
